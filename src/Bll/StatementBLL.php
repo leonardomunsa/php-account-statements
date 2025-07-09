@@ -17,6 +17,7 @@ use ByJG\MicroOrm\Exception\RepositoryReadOnlyException;
 use ByJG\MicroOrm\Exception\UpdateConstraintException;
 use ByJG\Serializer\Exception\InvalidArgumentException;
 use Exception;
+use KingPandaApi\Model\StatementCodes;
 
 class StatementBLL
 {
@@ -365,7 +366,7 @@ class StatementBLL
      * @throws UpdateConstraintException
      * @throws \ByJG\MicroOrm\Exception\InvalidArgumentException
      */
-    public function acceptPartialFundsById(int $statementId, ?StatementDTO $statementDto): ?int
+    public function acceptPartialFundsById(int $statementId, ?StatementDTO $statementDto, ?string $referenceId = null): ?int
     {
         if (is_null($statementDto)) {
             throw new StatementException('acceptPartialFundsById: StatementDTO cannot be null.');
@@ -397,7 +398,12 @@ class StatementBLL
                 );
             }
 
-            $this->rejectFundsById($statementId, StatementDTO::createEmpty()->setDescription('Reversal of partial acceptance for reserve ' . $statementId));
+            $this->rejectFundsById($statementId,
+                StatementDTO::createEmpty()
+                    ->setDescription('Refund for initial bet ' . $statementId)
+                    ->setCode('REFUND')
+                    ->setReferenceId($referenceId ?? $statementDto->getReferenceId())
+            );
 
             $statementDto->setAccountId($statement->getAccountId());
 

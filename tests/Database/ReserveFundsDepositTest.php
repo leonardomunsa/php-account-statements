@@ -258,7 +258,8 @@ public function testAcceptFundsById_InvalidType()
         $statementDTO = StatementDTO::createEmpty()
             ->setAmount(80.00)
             ->setDescription("Deposit")
-            ->setReferenceSource("test-source");
+            ->setReferenceSource("test-source")
+            ->setReferenceId('2');
 
         $finalDebitStatementId = $this->statementBLL->acceptPartialFundsById(
             $reserveStatementId,
