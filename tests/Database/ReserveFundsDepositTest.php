@@ -209,22 +209,6 @@ public function testAcceptFundsById_InvalidType()
         $this->assertEquals($statement->toArray(), $actual->toArray());
     }
 
-    public function testAcceptPartialFundsById_StatementDTONull()
-    {
-        $this->expectException(StatementException::class);
-
-        $accountId = $this->accountBLL->createAccount('USDTEST', "___TESTUSER-1", 1000);
-        $reserveStatementId = $this->statementBLL->reserveFundsForWithdraw(
-            StatementDTO::create($accountId, 100)
-        );
-
-        $statementRefundDto = StatementDTO::createEmpty()
-            ->setDescription("Refund")
-            ->setReferenceSource("test-source");
-
-        $this->statementBLL->acceptPartialFundsById($reserveStatementId, null, $statementRefundDto);
-    }
-
     public function testAcceptPartialFundsById_PartialAmountZero()
     {
         $this->expectException(AmountException::class);

@@ -354,7 +354,8 @@ class StatementBLL
 
     /**
      * @param int $statementId
-     * @param StatementDTO|null $statementDto
+     * @param StatementDTO $statementDtoWithdraw
+     * @param StatementDTO $statementDtoRefund
      * @return int|null
      * @throws AccountException
      * @throws AmountException
@@ -366,12 +367,8 @@ class StatementBLL
      * @throws UpdateConstraintException
      * @throws \ByJG\MicroOrm\Exception\InvalidArgumentException
      */
-    public function acceptPartialFundsById(int $statementId, ?StatementDTO $statementDtoWithdraw, ?StatementDTO $statementDtoRefund): ?int
+    public function acceptPartialFundsById(int $statementId, StatementDTO $statementDtoWithdraw, StatementDTO $statementDtoRefund): ?int
     {
-        if (is_null($statementDtoWithdraw) || is_null($statementDtoRefund)) {
-            throw new StatementException('acceptPartialFundsById: StatementDTO cannot be null.');
-        }
-
         $partialAmount = $statementDtoWithdraw->getAmount();
 
         if ($partialAmount <= 0) {
