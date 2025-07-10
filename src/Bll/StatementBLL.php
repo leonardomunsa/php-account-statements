@@ -366,13 +366,13 @@ class StatementBLL
      * @throws UpdateConstraintException
      * @throws \ByJG\MicroOrm\Exception\InvalidArgumentException
      */
-    public function acceptPartialFundsById(int $statementId, ?StatementDTO $statementDto, ?string $referenceId = null): ?int
+    public function acceptPartialFundsById(int $statementId, ?StatementDTO $statementDtoWithdraw, ?StatementDTO $statementDtoRefund): ?int
     {
-        if (is_null($statementDto)) {
+        if (is_null($statementDtoWithdraw) || is_null($statementDtoRefund)) {
             throw new StatementException('acceptPartialFundsById: StatementDTO cannot be null.');
         }
 
-        $partialAmount = $statementDto->getAmount();
+        $partialAmount = $statementDtoWithdraw->getAmount();
 
         if ($partialAmount <= 0) {
             throw new AmountException('Partial amount must be greater than zero.');
@@ -398,16 +398,11 @@ class StatementBLL
                 );
             }
 
-            $this->rejectFundsById($statementId,
-                StatementDTO::createEmpty()
-                    ->setDescription('Refund for initial bet ' . $statementId)
-                    ->setCode('REFUND')
-                    ->setReferenceId($referenceId ?? $statementDto->getReferenceId())
-            );
+            $this->rejectFundsById($statementId, $statementDtoRefund);
 
-            $statementDto->setAccountId($statement->getAccountId());
+            $statementDtoWithdraw->setAccountId($statement->getAccountId());
 
-            $finalDebitStatementId = $this->withdrawFunds($statementDto);
+            $finalDebitStatementId = $this->withdrawFunds($statementDtoWithdraw);
 
             $this->getRepository()->getDbDriver()->commitTransaction();
 

@@ -218,7 +218,11 @@ public function testAcceptFundsById_InvalidType()
             StatementDTO::create($accountId, 100)
         );
 
-        $this->statementBLL->acceptPartialFundsById($reserveStatementId, null);
+        $statementRefundDto = StatementDTO::createEmpty()
+            ->setDescription("Refund")
+            ->setReferenceSource("test-source");
+
+        $this->statementBLL->acceptPartialFundsById($reserveStatementId, null, $statementRefundDto);
     }
 
     public function testAcceptPartialFundsById_PartialAmountZero()
@@ -230,8 +234,12 @@ public function testAcceptFundsById_InvalidType()
             StatementDTO::create($accountId, 100)
         );
 
+        $statementRefundDto = StatementDTO::createEmpty()
+            ->setDescription("Refund")
+            ->setReferenceSource("test-source");
+
         $statementDTO = StatementDTO::createEmpty()->setAmount(0);
-        $this->statementBLL->acceptPartialFundsById($reserveStatementId, $statementDTO);
+        $this->statementBLL->acceptPartialFundsById($reserveStatementId, $statementDTO, $statementRefundDto);
     }
 
     public function testAcceptPartialFundsById_AmountMoreThanWithdrawBlocked()
@@ -244,8 +252,12 @@ public function testAcceptFundsById_InvalidType()
             StatementDTO::create($accountId, 100)
         );
 
+        $statementRefundDto = StatementDTO::createEmpty()
+            ->setDescription("Refund")
+            ->setReferenceSource("test-source");
+
         $statementDTO = StatementDTO::createEmpty()->setAmount(100.01);
-        $this->statementBLL->acceptPartialFundsById($reserveStatementId, $statementDTO);
+        $this->statementBLL->acceptPartialFundsById($reserveStatementId, $statementDTO, $statementRefundDto);
     }
 
     public function testAcceptPartialFundsById_OK()
@@ -255,15 +267,19 @@ public function testAcceptFundsById_InvalidType()
             StatementDTO::create($accountId, 100)->setDescription('Reserva para Aposta')
         );
 
-        $statementDTO = StatementDTO::createEmpty()
+        $statementWithdrawDto = StatementDTO::createEmpty()
             ->setAmount(80.00)
             ->setDescription("Deposit")
-            ->setReferenceSource("test-source")
-            ->setReferenceId('2');
+            ->setReferenceSource("test-source");
+
+        $statementRefundDto = StatementDTO::createEmpty()
+            ->setDescription("Refund")
+            ->setReferenceSource("test-source");
 
         $finalDebitStatementId = $this->statementBLL->acceptPartialFundsById(
             $reserveStatementId,
-            $statementDTO
+            $statementWithdrawDto,
+            $statementRefundDto
         );
 
         $accountAfter = $this->accountBLL->getById($accountId);
